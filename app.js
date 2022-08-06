@@ -16,11 +16,18 @@ let bodyParser = require('body-parser');
 
 mongoose.connect('mongodb://localhost/todos',function (err) {
 
-    if (err) throw err;
+  if (err) throw err;
 
 });
+
+// view engine setup
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'pug');
+
 app.use(cors())
+
 app.use(logger('dev'));
+//app.use(express.json());
 app.use( bodyParser.json() );
 app.use(bodyParser.urlencoded({extended: true}));
 //app.use(express.urlencoded({ extended: false }));

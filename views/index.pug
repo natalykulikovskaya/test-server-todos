@@ -6,48 +6,5 @@ html
     // Required meta tags
     meta(charset='utf-8')
     meta(name='viewport', content='width=device-width, initial-scale=1, shrink-to-fit=no')
-    // Bootstrap CSS
-    link(rel='stylesheet', href='/lib/bootstrap.min.css')
   body
-      .container.frame-all
-        .enter
-          div
-            h1 todos
-            input#check-all.check-all(type='checkbox')
-            label(for='check-all') Check all
-            input#new-todos.enter-todo(type='text', maxlength='100', placeholder='Whats need to be done?', width='400px', autocomplete='off', autofocus='')
-            button#add-todo.btn.btn-success(type='button') Add
-        .modal.fade.bs-example-modal-sm(tabindex='-1', role='dialog', aria-labelledby='mySmallModalLabel', aria-hidden='true')
-          .modal-dialog.modal-sm
-            .modal-content
-              | ...
-        div
-          ul#list-todos
-        nav.navigator(aria-label='Todos')
-          ul.pagination.pagination-sm
-        div
-          .count
-            input.count-all(type='text', value='0  all todos', min-width='50px', disabled='')
-            input.count-uncomplete(type='text', value='0  items uncomplete', min-width='50px', disabled='')
-            input.count-complete(type='text', value='0  items complete', min-width='50px', disabled='')
-          .allbutton
-            div
-              ul.nav.nav-pills
-                li.nav-item
-                  a#all.nav-link.active(href='#') All
-                li.nav-item
-                  a#active-todos.nav-link(href='#') Active
-                li.nav-item
-                  a#complete-todos.nav-link(href='#') Completed
-            div
-              button#clear.btn.btn-danger(type='button', name='clear') Delete complete
-        // </form>
-        // Optional JavaScript
-        // jQuery first, then Bootstrap JS
-        script(src='/lib/underscore-min.js', async='')
-        script(src='/lib/jquery-3.3.1.min.js', async='')
-          script(src='/lib/bootstrap.min.css', async='')
-            script(src='/lib/bootstrap.min.css.map', async='')
-        //script(src='https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js', integrity='sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q', crossorigin='anonymous')
-        //<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-        script(src='/script/main.js', async='')
+      div TODOS
