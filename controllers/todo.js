@@ -16,14 +16,18 @@ const getTodos = (req, res) => {
 
 const addTodo = (req, res) => {
     const name = req.body.name;
-
+  if(name){
     Todo.create({name: name})
-        .then(function (data) {
-            res.send(data);
-        })
-        .catch(function () {
-            return res.status(400).send('Unable to create todo list');
-        })
+      .then(function (data) {
+        res.send(data);
+      })
+      .catch(function () {
+        return res.status(400).send('Unable to add todo in list');
+      })
+  } else {
+     return res.status(403).send('Unable to create todo - empty name');
+  }
+
 };
 
 

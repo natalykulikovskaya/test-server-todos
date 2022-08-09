@@ -1,33 +1,42 @@
-describe('todo controller', () => {
-  test('addTodo correct value', () => {
-    const todo = { name: '12312', status: false }
-    expect(todo).not.toBeNull();
-    expect(todo).toEqual(
-      expect.objectContaining({
-        name: expect.any(String),
-        status: expect.any(Boolean),
-      })
-    )
-  })
+const supertest = require('supertest');
+const app = require('../app');
+const requestWithSupertest = supertest(app);
 
-  test.failing('addTodo not correct value', () => {
-    const todo = { name: 12312, status: false }
-    expect(todo).not.toBeNull();
-    expect(todo).toEqual(
-      expect.objectContaining({
-        name: expect.any(String),
-        status: expect.any(Boolean),
-      })
-    )
-    expect(todo.name).toBe('12312')
-    expect(todo.status).toBe(false)
-  })
+describe('get all todos/ controller', () => {
+  it('run request get /todo/ return array from todos', async () => {
+    const res = await requestWithSupertest.get('/todo/').expect('Content-Type', "application/json; charset=utf-8");
+    expect(res.status).toEqual(200);
+    expect(res.type).toEqual(expect.stringContaining('json'));
+    expect(res.body).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          _id: expect.any(String),
 
-  test('deleteTodo', () => {
-    const id = '124534'
-    expect(id).toBeTruthy();
-    expect(id).toBe('124534')
+          name: expect.any(String),
+
+          status: expect.any(Boolean),
+        }),
+      ])
+    );
+  });
+
+});
+
+  it('run not exist request', async () => {
+    const res = await requestWithSupertest.get('/todorm/').expect(404)
+    expect(res.error.message).toBe('cannot GET /todorm/ (404)');
+  });
+
+describe('delete todo/ controller', () => {
+  test('run REST delete from todo/:id correct if id exist', async() => {
+    const todos = await requestWithSupertest.get('/todo/')
+    expect(todos?.body?.length).toBeGreaterThanOrEqual(1);
+    const todoId = todos?.body?.[0]?._id
+    const res = await requestWithSupertest.delete(`/todo/${todoId}`)
+    expect(res.status).toEqual(200);
+   expect(res.body).toEqual(todos?.body?.[0])
   })
+})
 
   test('correct id from editTodo', () => {
     const id = 'aaa';
@@ -54,4 +63,3 @@ describe('todo controller', () => {
     const status = '111'
     expect(status).not.toEqual(expect.any(Boolean))
   })
-})
