@@ -44,7 +44,7 @@ const deleteTodo = (req, res) => {
 
 
 const deleteCompleteTodo = (req, res) => {
-    Todo.remove({status: true})
+    Todo.deleteMany({status: true})
         .then(function (data) {
             res.send(data);
         })
@@ -63,7 +63,6 @@ const editTodo = (req, res) => {
         $set: updateTodo,
     })
         .then(function (data) {
-            console.log('data', data)
             res.send(data);
         })
         .catch(function () {
