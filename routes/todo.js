@@ -2,6 +2,7 @@
 let express = require('express');
 let router = express.Router();
 let controller = require('../controllers/todo');
+
 /* GET users listing. */
 router.get('/',controller.getTodos);
 router.post('/',controller.addTodo);
