@@ -13,11 +13,13 @@ describe('create mock DB',() => {
     await mongoose.connect(uri, { dbName: "todos" });
 
   })
+  afterEach(async () => {
+    await Todo.deleteMany();
+  })
 
   afterAll(async () => {
     await mongod.stop();
     await mongoose.disconnect();
-    await Todo.drop;
   })
 
   describe('getTodos', () => {
@@ -77,9 +79,9 @@ describe('create mock DB',() => {
   describe('delete all complete Todo', () => {
     it('Todo.deleteMany drop all record with status: true',async () => {
       const initialTodos = [
-        {name: '111', status: false},
-        {name: '222', status: true},
-        {name: '333', status: true},
+        {name: 'aaa', status: false},
+        {name: 'bbb', status: true},
+        {name: 'ccc', status: true},
       ]
       await Todo.create(initialTodos);
       await Todo.deleteMany({status: true});
