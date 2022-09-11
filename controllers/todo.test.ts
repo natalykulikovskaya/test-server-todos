@@ -1,88 +1,144 @@
-const supertest = require('supertest');
-const app = require('../app');
-const requestWithSupertest = supertest(app);
+const { MongoMemoryServer }  = require('mongodb-memory-server');
+const mongoose = require('mongoose');
+let Todo = require('../db/models/todo');
 
-describe('get all todos/ controller', () => {
-  it('run controller get /todo/ return array from todos', async () => {
-    const res = await requestWithSupertest.get('/todo/').expect('Content-Type', "application/json; charset=utf-8");
-    expect(res.status).toEqual(200);
-    expect(res.type).toEqual(expect.stringContaining('json'));
-    expect(res.body).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          _id: expect.any(String),
+describe('create mock DB',() => {
+  let mongod;
 
-          name: expect.any(String),
+  beforeAll(async () => {
+    mongod = await MongoMemoryServer.create();
 
-          status: expect.any(Boolean),
-        }),
-      ])
-    );
-  });
+    const uri = mongod.getUri();
 
-});
+    await mongoose.connect(uri, { dbName: "todos" });
 
-  it('run not exist controller', async () => {
-    const res = await requestWithSupertest.get('/todorm/').expect(404)
-    expect(res.error.status).toBe(404);
-  });
-
-describe('delete todo/:id controller', () => {
-  it('run controller delete todo/:id correct if id exist', async() => {
-    const todos = await requestWithSupertest.get('/todo/')
-    expect(todos?.body?.length).toBeGreaterThanOrEqual(1);
-    const todoId = todos?.body?.[0]?._id
-    const res = await requestWithSupertest.delete(`/todo/${todoId}`)
-    expect(res.status).toEqual(200);
-   expect(res.body).toEqual(todos?.body?.[0])
   })
+
+  afterAll(async () => {
+    await mongod.stop();
+    await mongoose.disconnect();
+    await Todo.drop;
+  })
+
+  describe('getTodos', () => {
+    it('Todo.find in initial DB return empty',async () => {
+      const cnt = await Todo.find().then(
+        function (data){
+          return data
+        }
+      );
+      expect(cnt.length).toBe(0);
+    })
+
+    it('Todo.find from 3 records return arrayTodos have length 3',async () => {
+      const initialTodos = [
+        {name: '111', status: false},
+        {name: '222', status: false},
+        {name: '333', status: false},
+      ]
+      await Todo.create(initialTodos);
+      const cnt = await Todo.find().then(
+        function (data){
+          return data
+        }
+      );
+      console.log('cnt', cnt)
+      expect(cnt.length).toBe(3);
+    })
+  })
+
+  describe('addTodo', () => {
+      it('Todo.find in DB add new record',async () => {
+        const name = {name: '4444'}
+        const cnt = await Todo.create(name).then(
+          function (data){
+            return data
+          }
+        );
+        expect(cnt).toHaveProperty('name', '4444')
+      })
+    })
+
+  describe('deleteTodo', () => {
+    it('Todo.delete record in DB',async () => {
+      const initialTodos = [
+        {name: '111', status: false},
+        {name: '222', status: false},
+        {name: '333', status: false},
+      ]
+     const todos =  await Todo.create(initialTodos);
+      const id = todos?.[0]?._id;
+      await Todo.findByIdAndRemove(id);
+      const newDataDB = await Todo.find();
+      expect(newDataDB).not.toHaveProperty('_id', id)
+    })
+  })
+
+  describe('delete all complete Todo', () => {
+    it('Todo.deleteMany drop all record with status: true',async () => {
+      const initialTodos = [
+        {name: '111', status: false},
+        {name: '222', status: true},
+        {name: '333', status: true},
+      ]
+      await Todo.create(initialTodos);
+      await Todo.deleteMany({status: true});
+      const newDataDB = await Todo.find();
+      expect(newDataDB.length).toEqual(1);
+    })
+  })
+
+  describe('edit Todo', () => {
+    it('Todo.findByIdAndUpdate change exist record',async () => {
+      const initialTodos = [
+        {name: '111', status: false},
+        {name: '222', status: true},
+        {name: '333', status: true},
+      ]
+      const initialDataDb = await Todo.create(initialTodos);
+      const editTodosId = initialDataDb?.[1]?._id;
+      const updateTodo = {name: '4444', status: true};
+      await Todo.findByIdAndUpdate(editTodosId, updateTodo, {
+        returnDocument: 'after',
+        $set: updateTodo,
+      });
+      const newDataDB = await Todo.find();
+      expect(newDataDB.length).toEqual(3);
+      expect(newDataDB[1]).toHaveProperty('name', '4444');
+      expect(newDataDB[1]).toHaveProperty('status', true)
+    })
+  })
+
+  describe('check all Todo', () => {
+    beforeAll(async () => {
+      const initialTodos = [
+        {name: '111', status: false},
+        {name: '222', status: false},
+        {name: '333', status: true},
+      ]
+      await Todo.create(initialTodos);
+    })
+
+    it('Todo.updateMany if status equal true change all status on true',async () => {
+      const status = true;
+      await  Todo.updateMany({}, {$set: {status}})
+      const newDataDB = await Todo.find();
+      newDataDB.forEach(({status}) => {
+        expect(status).toBe(true)
+      })
+    })
+
+    it('Todo.updateMany if status equal false change all status on false',async () => {
+      const status = false;
+      await  Todo.updateMany({}, {$set: {status}})
+      const newDataDB = await Todo.find();
+      newDataDB.forEach(({status}) => {
+        expect(status).toBe(false)
+      })
+    })
+  })
+
 })
 
-describe('post todo/ controller', () => {
-  it('then get correct name, new todo insert in database', async() => {
-    const addTodoBody = {name:'study tests', status: false };
-    const res = await requestWithSupertest.post(`/todo/`).send(addTodoBody);
-    expect(res.status).toEqual(200);
-  })
-
-  it('then get empty name, get error 403', async() => {
-    const name =''
-    const addTodoBody = {name, status: false };
-    const res = await requestWithSupertest.post(`/todo/`).send(addTodoBody)
-    expect(res.status).toEqual(403);
-  })
-})
 
 
-describe('delete todo/ controller', () => {
-  it('all todos delete from database', async() => {
-    const res = await requestWithSupertest.delete(`/todo/`);
-    expect(res.status).toEqual(200);
-    expect(res.body).toEqual(expect.arrayContaining([]));
-  })
-})
-
-describe('put todo/ controller', () => {
-  it('all todos change status field on true', async() => {
-    const checkAll = true;
-    const res = await requestWithSupertest.put(`/todo/`).send({ status: checkAll });
-    expect(res.status).toEqual(200);
-    expect(res.body).toEqual(expect.objectContaining({
-     ...res.body,
-      acknowledged: true,
-    }));
-  })
-})
-
-describe('put todo/:id controller', () => {
-  it('if correct name todo it value change', async() => {
-    const todos = await requestWithSupertest.get(`/todo/`);
-    expect(todos.body.length).toBeGreaterThanOrEqual(1)
-    const updateTodo = { ...todos.body?.[0], name: 'sss'};
-    const res = await requestWithSupertest.put(`/todo/${updateTodo._id}`).send(updateTodo);
-    expect(res.status).toBe(200);
-    expect(res.body).toEqual(
-      expect.objectContaining(updateTodo)
-    );
-  });
-});

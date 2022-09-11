@@ -1,8 +1,6 @@
 "use strict"
 let Todo = require('../db/models/todo');
 
-const mongoose = require('mongoose');
-
 const getTodos = (req, res) => {
     Todo.find()
         .then(function (data) {
