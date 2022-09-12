@@ -1,6 +1,6 @@
 const { MongoMemoryServer }  = require('mongodb-memory-server');
 const mongoose = require('mongoose');
-let Todo = require('../db/models/todo');
+let Todo = require('./models/todo');
 
 describe('create mock DB',() => {
   let mongod;

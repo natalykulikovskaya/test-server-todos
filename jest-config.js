@@ -1,5 +1,5 @@
 module.exports = {
-  // testEnvironment: "node",
+  testEnvironment: "node",
   coveragePathIgnorePatterns: [
     "/node_modules/"
   ],
