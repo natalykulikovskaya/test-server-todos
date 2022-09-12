@@ -71,7 +71,6 @@ describe('controllers', () => {
             const req = mockRequest();
             const res = mockResponse();
             const s = await todoControllers.getTodos(req, res)
-                console.log('sdfsdsfd',res.send.mock.calls)
                 expect(res.status).toHaveBeenCalledWith(500);
                 expect(res.send.mock.calls[0][0]).toEqual('internal error');
         })
