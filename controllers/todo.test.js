@@ -67,16 +67,13 @@ describe('controllers', () => {
             expect(res.status).toHaveBeenCalledWith(200);
         })
         it('controller return error if 400', async () => {
-            mockF.mockImplementation(() => Promise.reject({ massage: 'Not Found'}))
+            mockF.mockImplementation(() => Promise.reject(new Error('internal error')))
             const req = mockRequest();
             const res = mockResponse();
-            try {
-            await todoControllers.getTodos(req, res)
-            } catch(e){
-                expect(res.status).toHaveBeenCalledWith(400);
-                expect(res.send).toHaveBeenCalledWith({ message: 'Not Found' });
-            }
-
+            const s = await todoControllers.getTodos(req, res)
+                console.log('sdfsdsfd',res.send.mock.calls)
+                expect(res.status).toHaveBeenCalledWith(500);
+                expect(res.send.mock.calls[0][0]).toEqual('internal error');
         })
     })
     describe('addTodos controller', () => {

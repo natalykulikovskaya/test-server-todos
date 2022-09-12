@@ -2,12 +2,12 @@
 let Todo = require('../db/models/todo');
 
 const getTodos = (req, res) => {
-    Todo.find()
+   return Todo.find()
         .then(function (data) {
             res.status(200).send(data)
         })
         .catch(function (e) {
-            res.status(e.status).send(e)
+            return res.status(500).send('internal error')
         })
 
 };
@@ -15,7 +15,7 @@ const getTodos = (req, res) => {
 const addTodo = (req, res) => {
     const name = req.body.name;
   if(name){
-    Todo.create({name: name})
+    return Todo.create({name: name})
       .then(function (data) {
         res.status(200).send(data);
       })
@@ -42,7 +42,7 @@ const deleteTodo = (req, res) => {
 
 
 const deleteCompleteTodo = (req, res) => {
-    Todo.deleteMany({status: true})
+    return Todo.deleteMany({status: true})
         .then(function (data) {
             res.status(200).send(data);
         })
@@ -56,7 +56,7 @@ const deleteCompleteTodo = (req, res) => {
 const editTodo = (req, res) => {
     let id = req.params.id;
     let updateTodo = req.body;
-       Todo.findByIdAndUpdate(id, updateTodo, {
+       return Todo.findByIdAndUpdate(id, updateTodo, {
          returnDocument: 'after',
         $set: updateTodo,
     })
@@ -71,7 +71,7 @@ const editTodo = (req, res) => {
 
 const checkAllTodo = (req, res) => {
     let status = req.body.status;
-    Todo.updateMany({}, {$set: {status: status}})
+    return Todo.updateMany({}, {$set: {status: status}})
         .then(function (data) {
             res.status(200).send(data);
         })
