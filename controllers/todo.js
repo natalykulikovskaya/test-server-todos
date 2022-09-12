@@ -20,10 +20,10 @@ const addTodo = (req, res) => {
         res.status(200).send(data);
       })
       .catch( (e) => {
-        return res.status(e.status).send(e);
+        return res.status(500).send('internal error');
       })
   } else {
-     return res.status(403).send({message: 'Unable to create todo - empty name'});
+     return res.status(403).send('Unable to create todo - empty name');
   }
 
 };

@@ -70,9 +70,10 @@ describe('controllers', () => {
             mockF.mockImplementation(() => Promise.reject(new Error('internal error')))
             const req = mockRequest();
             const res = mockResponse();
-            const s = await todoControllers.getTodos(req, res)
-                expect(res.status).toHaveBeenCalledWith(500);
-                expect(res.send.mock.calls[0][0]).toEqual('internal error');
+
+            await todoControllers.getTodos(req, res)
+            expect(res.status).toHaveBeenCalledWith(500);
+            expect(res.send.mock.calls[0][0]).toEqual('internal error');
         })
     })
     describe('addTodos controller', () => {
@@ -88,31 +89,26 @@ describe('controllers', () => {
 
         })
         it('if exist name and reject return status 400 and error', async () => {
-            mockF.mockImplementation(() => Promise.reject({message: 'Not found'}))
+            mockF.mockImplementation(() => Promise.reject('internal error'))
             let req = mockRequest();
             req.body.name = 'Learn English';
             const res = mockResponse();
 
-            try {
-                await todoControllers.addTodo(req, res);
-            } catch(e){
-                expect(e.status).toHaveBeenCalledWith(400);
-                expect(e.send).toHaveBeenCalledWith({message: 'Not found'});
-            }
+            await todoControllers.addTodo(req, res);
+            expect(res.status).toHaveBeenCalledWith(500);
+            expect(res.send.mock.calls[0][0]).toEqual('internal error');
+
         })
 
         it('if not exist name and reject return status 400 and error', async () => {
-            mockF.mockImplementation(() => Promise.resolve({message: 'Unable to create todo - empty name'}))
+            mockF.mockImplementation(() => Promise.resolve('Unable to create todo - empty name'))
             let req = mockRequest();
-            req.body.name = null;
+            req.body = {name: ''};
             const res = mockResponse();
+            await todoControllers.addTodo(req, res);
+                expect(res.status).toHaveBeenCalledWith(403);
+                expect(res.send).toHaveBeenCalledWith('Unable to create todo - empty name');
 
-            try {
-                await todoControllers.addTodo(req, res);
-            }catch(e){
-                expect(e.status).toHaveBeenCalledWith(403);
-                expect(e.send).toHaveBeenCalledWith({ message: 'Not Found' });
-            }
         })
     })
     describe('deleteTodo controller', () => {
